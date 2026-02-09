@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Autofill Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Job Autofill Assistant</h1>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="profiles">Profiles</button>
+      <button class="tab-btn" data-tab="autofill">Autofill</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- Profiles Tab -->
+    <div class="tab-content active" id="profiles-tab">
+      <div class="profile-selector">
+        <label for="profile-select">Select Profile:</label>
+        <select id="profile-select">
+          <option value="">-- Select a Profile --</option>
+        </select>
+        <button id="new-profile-btn" class="btn btn-primary">+ New Profile</button>
+      </div>
+
+      <div id="profile-form-container" style="display: none;">
+        <form id="profile-form">
+          <h3>Profile Information</h3>
+          
+          <div class="form-section">
+            <h4>Basic Information</h4>
+            <div class="form-group">
+              <label>Profile Name *</label>
+              <input type="text" name="profileName" required placeholder="e.g., Software Engineer Profile">
+            </div>
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" name="fullName" required placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" name="email" required placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" name="phone" placeholder="+1 (555) 123-4567">
+            </div>
+            <div class="form-group">
+              <label>LinkedIn URL</label>
+              <input type="url" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+            </div>
+            <div class="form-group">
+              <label>Portfolio/Website</label>
+              <input type="url" name="website" placeholder="https://yourwebsite.com">
+            </div>
+            <div class="form-group">
+              <label>GitHub</label>
+              <input type="url" name="github" placeholder="https://github.com/yourusername">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Address</h4>
+            <div class="form-group">
+              <label>Street Address</label>
+              <input type="text" name="street" placeholder="123 Main St">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" name="city" placeholder="New York">
+              </div>
+              <div class="form-group">
+                <label>State/Province</label>
+                <input type="text" name="state" placeholder="NY">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ZIP/Postal Code</label>
+                <input type="text" name="zip" placeholder="10001">
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" name="country" placeholder="USA">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Work Experience</h4>
+            <div id="work-experience-container">
+              <!-- Work experiences will be added dynamically -->
+            </div>
+            <button type="button" id="add-work-btn" class="btn btn-secondary">+ Add Work Experience</button>
+          </div>
+
+          <div class="form-section">
+            <h4>Education</h4>
+            <div id="education-container">
+              <!-- Education entries will be added dynamically -->
+            </div>
+            <button type="button" id="add-education-btn" class="btn btn-secondary">+ Add Education</button>
+          </div>
+
+          <div class="form-section">
+            <h4>Skills</h4>
+            <div class="form-group">
+              <label>Skills (comma-separated)</label>
+              <textarea name="skills" rows="3" placeholder="JavaScript, Python, React, Node.js, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Additional Information</h4>
+            <div class="form-group">
+              <label>Work Authorization</label>
+              <select name="workAuthorization">
+                <option value="">-- Select --</option>
+                <option value="us_citizen">U.S. Citizen</option>
+                <option value="green_card">Green Card Holder</option>
+                <option value="h1b">H-1B Visa</option>
+                <option value="opt">OPT</option>
+                <option value="cpt">CPT</option>
+                <option value="require_sponsorship">Require Sponsorship</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Veteran Status</label>
+              <select name="veteranStatus">
+                <option value="">-- Select --</option>
+                <option value="not_veteran">Not a Veteran</option>
+                <option value="veteran">Veteran</option>
+                <option value="disabled_veteran">Disabled Veteran</option>
+                <option value="prefer_not_say">Prefer Not to Say</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select name="gender">
+                <option value="">-- Select --</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non_binary">Non-Binary</option>
+                <option value="prefer_not_say">Prefer Not to Say</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Race/Ethnicity</label>
+              <select name="race">
+                <option value="">-- Select --</option>
+                <option value="asian">Asian</option>
+                <option value="black">Black or African American</option>
+                <option value="hispanic">Hispanic or Latino</option>
+                <option value="white">White</option>
+                <option value="native_american">Native American</option>
+                <option value="pacific_islander">Pacific Islander</option>
+                <option value="two_or_more">Two or More Races</option>
+                <option value="prefer_not_say">Prefer Not to Say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <button type="button" id="delete-profile-btn" class="btn btn-danger" style="display: none;">Delete Profile</button>
+            <button type="button" id="cancel-profile-btn" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Autofill Tab -->
+    <div class="tab-content" id="autofill-tab">
+      <div class="autofill-section">
+        <h3>Resume Upload</h3>
+        <p class="info-text">Upload your resume for AI-powered answers to open-ended questions</p>
+        <div class="form-group">
+          <input type="file" id="resume-upload" accept=".pdf,.doc,.docx,.txt" style="display: none;">
+          <button id="upload-resume-btn" class="btn btn-primary">Upload Resume</button>
+          <div id="resume-status" class="status-text"></div>
+        </div>
+
+        <h3>API Configuration</h3>
+        <p class="info-text">Configure your AI provider for smart form filling</p>
+        <div class="form-group">
+          <label>AI Provider</label>
+          <select id="ai-provider">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="api-key" placeholder="Enter your API key">
+        </div>
+        <button id="save-api-btn" class="btn btn-primary">Save API Configuration</button>
+        <div id="api-status" class="status-text"></div>
+
+        <h3>Autofill Control</h3>
+        <div class="control-section">
+          <button id="autofill-btn" class="btn btn-primary btn-large">Fill Current Page</button>
+          <div id="autofill-status" class="status-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="settings-tab">
+      <div class="settings-section">
+        <h3>Extension Settings</h3>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="auto-detect-forms">
+            <span>Auto-detect forms on page load</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="highlight-fields">
+            <span>Highlight fillable fields</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Fill Delay (ms)</label>
+          <input type="number" id="fill-delay" value="100" min="0" max="1000" step="50">
+          <small>Delay between filling each field to appear more natural</small>
+        </div>
+
+        <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+        <div id="settings-status" class="status-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

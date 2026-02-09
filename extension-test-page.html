@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application Test Page - Extension Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e8e8e8;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .form-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #ff4757;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .test-results {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .test-results.show {
+            display: block;
+        }
+
+        .test-results h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .test-results pre {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .clear-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .clear-btn:hover {
+            background: #e84118;
+        }
+
+        .add-more-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .add-more-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .experience-entry,
+        .education-entry {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            border: 1px solid #e0e0e0;
+        }
+
+        .remove-entry-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .remove-entry-btn:hover {
+            background: #e84118;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Job Application Extension Test Page</h1>
+            <p>Use this page to test your job application autofill extension</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('basic')">Basic Form</button>
+            <button class="tab" onclick="switchTab('workday')">Workday Style</button>
+            <button class="tab" onclick="switchTab('greenhouse')">Greenhouse Style</button>
+            <button class="tab" onclick="switchTab('ai')">AI Questions</button>
+        </div>
+
+        <!-- Basic Form -->
+        <div class="tab-content active" id="basic">
+            <div class="info-box">
+                <h3>Basic Job Application Form</h3>
+                <p>This form uses simple, common field names. Perfect for testing basic autofill functionality.</p>
+            </div>
+
+            <button class="clear-btn" onclick="clearForm('basicForm')">Clear Form</button>
+
+            <form id="basicForm">
+                <div class="form-section">
+                    <h2>Personal Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name">First Name <span class="required">*</span></label>
+                            <input type="text" id="first-name" name="first-name" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name">Last Name <span class="required">*</span></label>
+                            <input type="text" id="last-name" name="last-name" placeholder="Last name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="your.email@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="linkedin">LinkedIn Profile</label>
+                        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="github">GitHub Profile</label>
+                        <input type="url" id="github" name="github" placeholder="https://github.com/yourusername">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Address</h2>
+                    
+                    <div class="form-group">
+                        <label for="street">Street Address</label>
+                        <input type="text" id="street" name="street" placeholder="123 Main St">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" placeholder="New York">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" placeholder="NY">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" id="zip" name="zip" placeholder="10001">
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country">
+                                <option value="">-- Select Country --</option>
+                                <option value="USA">United States</option>
+                                <option value="Canada">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Germany">Germany</option>
+                                <option value="France">France</option>
+                                <option value="Japan">Japan</option>
+                                <option value="China">China</option>
+                                <option value="India">India</option>
+                                <option value="Mexico">Mexico</option>
+                                <option value="Brazil">Brazil</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Italy">Italy</option>
+                                <option value="Netherlands">Netherlands</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Work Experience</h2>
+                    
+                    <div id="work-experience-container">
+                        <div class="experience-entry" data-index="0">
+                            <h3 style="font-size: 16px; margin-bottom: 15px; color: #666;">Position 1</h3>
+                            
+                            <div class="form-group">
+                                <label>Job Title</label>
+                                <input type="text" name="work-title-0" placeholder="Software Engineer">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Company</label>
+                                <input type="text" name="work-company-0" placeholder="Tech Corp">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="month" name="work-start-0">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="month" name="work-end-0" placeholder="Leave blank if current">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="work-description-0" rows="3" placeholder="Describe your responsibilities and achievements..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="add-more-btn" onclick="addWorkExperience()">+ Add Another Position</button>
+                </div>
+
+                <div class="form-section">
+                    <h2>Education</h2>
+                    
+                    <div id="education-container">
+                        <div class="education-entry" data-index="0">
+                            <h3 style="font-size: 16px; margin-bottom: 15px; color: #666;">Education 1</h3>
+                            
+                            <div class="form-group">
+                                <label>University/School</label>
+                                <input type="text" name="school-0" placeholder="University of Example">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Degree</label>
+                                <input type="text" name="degree-0" placeholder="Bachelor of Science">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Major/Field of Study</label>
+                                <input type="text" name="major-0" placeholder="Computer Science">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="month" name="edu-start-0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Graduation Date</label>
+                                    <input type="month" name="edu-end-0">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>GPA (Optional)</label>
+                                <input type="text" name="gpa-0" placeholder="3.8">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="add-more-btn" onclick="addEducation()">+ Add Another Education</button>
+                </div>
+
+                <div class="form-section">
+                    <h2>Additional Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="skills">Skills</label>
+                        <textarea id="skills" name="skills" placeholder="List your skills..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="work-auth">Work Authorization</label>
+                        <select id="work-auth" name="work-auth">
+                            <option value="">-- Select --</option>
+                            <option value="us-citizen">U.S. Citizen</option>
+                            <option value="green-card">Green Card Holder</option>
+                            <option value="h1b">H-1B Visa</option>
+                            <option value="opt">OPT</option>
+                            <option value="cpt">CPT</option>
+                            <option value="require-sponsorship">Require Sponsorship</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">-- Select --</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="non-binary">Non-Binary</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-say">Prefer Not to Say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="race">Race/Ethnicity</label>
+                        <select id="race" name="race">
+                            <option value="">-- Select --</option>
+                            <option value="asian">Asian</option>
+                            <option value="black">Black or African American</option>
+                            <option value="hispanic">Hispanic or Latino</option>
+                            <option value="white">White</option>
+                            <option value="native-american">American Indian or Alaska Native</option>
+                            <option value="pacific-islander">Native Hawaiian or Pacific Islander</option>
+                            <option value="two-or-more">Two or More Races</option>
+                            <option value="prefer-not-say">Prefer Not to Say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="veteran">Veteran Status</label>
+                        <select id="veteran" name="veteran">
+                            <option value="">-- Select --</option>
+                            <option value="not-veteran">Not a Veteran</option>
+                            <option value="veteran">Veteran</option>
+                            <option value="disabled-veteran">Disabled Veteran</option>
+                            <option value="prefer-not-say">Prefer Not to Say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="disability">Disability Status</label>
+                        <select id="disability" name="disability">
+                            <option value="">-- Select --</option>
+                            <option value="yes">Yes, I have a disability</option>
+                            <option value="no">No, I don't have a disability</option>
+                            <option value="prefer-not-say">Prefer Not to Say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Application</button>
+            </form>
+
+            <div class="test-results" id="basicResults"></div>
+        </div>
+
+        <!-- Workday Style -->
+        <div class="tab-content" id="workday">
+            <div class="info-box">
+                <h3>Workday-Style Application Form</h3>
+                <p>Mimics Workday's naming conventions and field structure. Tests compatibility with enterprise ATS systems.</p>
+            </div>
+
+            <button class="clear-btn" onclick="clearForm('workdayForm')">Clear Form</button>
+
+            <form id="workdayForm">
+                <div class="form-section">
+                    <h2>Candidate Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="wd-legal-name">Legal Name <span class="required">*</span></label>
+                        <input type="text" id="wd-legal-name" name="legalName" placeholder="Full legal name">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wd-fname">Given Name</label>
+                            <input type="text" id="wd-fname" name="givenName" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label for="wd-lname">Family Name</label>
+                            <input type="text" id="wd-lname" name="familyName" placeholder="Last name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wd-email">E-Mail Address <span class="required">*</span></label>
+                        <input type="email" id="wd-email" name="emailAddress" placeholder="email@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wd-phone">Telephone Number</label>
+                        <input type="tel" id="wd-phone" name="telephoneNumber" placeholder="Phone number">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Address Details</h2>
+                    
+                    <div class="form-group">
+                        <label for="wd-address1">Address Line 1</label>
+                        <input type="text" id="wd-address1" name="addressLine1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wd-address2">Address Line 2</label>
+                        <input type="text" id="wd-address2" name="addressLine2">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wd-city">City/Town</label>
+                            <input type="text" id="wd-city" name="cityTown">
+                        </div>
+                        <div class="form-group">
+                            <label for="wd-region">State/Province</label>
+                            <input type="text" id="wd-region" name="stateProvince">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wd-postal">Postal Code</label>
+                            <input type="text" id="wd-postal" name="postalCode">
+                        </div>
+                        <div class="form-group">
+                            <label for="wd-country">Country</label>
+                            <input type="text" id="wd-country" name="country">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Professional Links</h2>
+                    
+                    <div class="form-group">
+                        <label for="wd-linkedin">LinkedIn URL</label>
+                        <input type="url" id="wd-linkedin" name="linkedinUrl">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wd-portfolio">Personal Website</label>
+                        <input type="url" id="wd-portfolio" name="portfolioUrl">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Employment Eligibility</h2>
+                    
+                    <div class="form-group">
+                        <label for="wd-authorization">Work Authorization Status</label>
+                        <select id="wd-authorization" name="workAuthorization">
+                            <option value="">-- Please Select --</option>
+                            <option value="citizen">U.S. Citizen</option>
+                            <option value="permanent">Permanent Resident</option>
+                            <option value="visa">Work Visa</option>
+                            <option value="sponsorship">Need Sponsorship</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wd-veteran">Veteran Status</label>
+                        <select id="wd-veteran" name="veteranStatus">
+                            <option value="">-- Please Select --</option>
+                            <option value="not-veteran">Not a Veteran</option>
+                            <option value="veteran">Veteran</option>
+                            <option value="disabled-veteran">Disabled Veteran</option>
+                            <option value="decline">Prefer Not to Say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Continue Application</button>
+            </form>
+
+            <div class="test-results" id="workdayResults"></div>
+        </div>
+
+        <!-- Greenhouse Style -->
+        <div class="tab-content" id="greenhouse">
+            <div class="info-box">
+                <h3>Greenhouse-Style Application Form</h3>
+                <p>Simulates Greenhouse ATS forms with their specific field naming patterns.</p>
+            </div>
+
+            <button class="clear-btn" onclick="clearForm('greenhouseForm')">Clear Form</button>
+
+            <form id="greenhouseForm">
+                <div class="form-section">
+                    <h2>Applicant Details</h2>
+                    
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" name="applicant_name" placeholder="Your full name">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" name="first_name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="last_name">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" name="applicant_email">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" name="applicant_phone">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Location</h2>
+                    
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" name="applicant_address">
+                    </div>
+
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" name="applicant_city">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>State/Province</label>
+                            <input type="text" name="applicant_state">
+                        </div>
+                        <div class="form-group">
+                            <label>Zip/Postal Code</label>
+                            <input type="text" name="applicant_zip">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Professional Information</h2>
+                    
+                    <div class="form-group">
+                        <label>LinkedIn Profile</label>
+                        <input type="url" name="linkedin_profile">
+                    </div>
+
+                    <div class="form-group">
+                        <label>GitHub Username</label>
+                        <input type="text" name="github_username">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Website/Portfolio</label>
+                        <input type="url" name="website_url">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Education Background</h2>
+                    
+                    <div class="form-group">
+                        <label>School/University</label>
+                        <input type="text" name="education_school">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Degree Earned</label>
+                        <input type="text" name="education_degree">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Field of Study</label>
+                        <input type="text" name="field_of_study">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Application</button>
+            </form>
+
+            <div class="test-results" id="greenhouseResults"></div>
+        </div>
+
+        <!-- AI Questions -->
+        <div class="tab-content" id="ai">
+            <div class="info-box">
+                <h3>AI-Powered Question Form</h3>
+                <p>This form contains open-ended questions that require AI to generate personalized answers based on your resume.</p>
+            </div>
+
+            <button class="clear-btn" onclick="clearForm('aiForm')">Clear Form</button>
+
+            <form id="aiForm">
+                <div class="form-section">
+                    <h2>Basic Info (for AI context)</h2>
+                    
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="candidate_name" placeholder="Full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="candidate_email">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Open-Ended Questions</h2>
+                    
+                    <div class="form-group">
+                        <label>Why are you interested in this position?</label>
+                        <textarea name="why_interested" rows="5" placeholder="This question should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Why do you want to work at our company?</label>
+                        <textarea name="why_company" rows="5" placeholder="This question should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Why are you a good fit for this role?</label>
+                        <textarea name="why_good_fit" rows="5" placeholder="This question should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What makes you qualified for this position?</label>
+                        <textarea name="qualifications" rows="5" placeholder="This question should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tell us about yourself and why we should hire you.</label>
+                        <textarea name="about_yourself" rows="5" placeholder="This question should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cover Letter</label>
+                        <textarea name="cover_letter" rows="8" placeholder="This should be filled by AI..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Information (Optional)</label>
+                        <textarea name="additional_info" rows="4" placeholder="Any additional information you'd like to share..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Application</button>
+            </form>
+
+            <div class="test-results" id="aiResults"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark clicked tab as active
+            event.target.classList.add('active');
+        }
+
+        function clearForm(formId) {
+            const form = document.getElementById(formId);
+            form.reset();
+            
+            // Also hide results
+            const resultsId = formId.replace('Form', 'Results');
+            const results = document.getElementById(resultsId);
+            if (results) {
+                results.classList.remove('show');
+            }
+        }
+
+        // Handle form submissions to show what was captured
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+
+                // Find the results div for this form
+                const resultsId = this.id.replace('Form', 'Results');
+                const resultsDiv = document.getElementById(resultsId);
+                
+                if (resultsDiv) {
+                    resultsDiv.innerHTML = `
+                        <h3>✅ Form Submitted - Captured Data:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <p style="margin-top: 15px; color: #666; font-size: 13px;">
+                            <strong>Note:</strong> This is just test data. Check how many fields your extension filled automatically!
+                        </p>
+                    `;
+                    resultsDiv.classList.add('show');
+                    
+                    // Scroll to results
+                    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+
+        // Log when extension fills fields (for debugging)
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input, textarea, select')) {
+                console.log('Field filled:', {
+                    name: e.target.name,
+                    id: e.target.id,
+                    value: e.target.value.substring(0, 50) + (e.target.value.length > 50 ? '...' : '')
+                });
+            }
+        });
+
+        // Counter for dynamic entries
+        let workExperienceCount = 1;
+        let educationCount = 1;
+
+        // Add work experience
+        function addWorkExperience() {
+            const container = document.getElementById('work-experience-container');
+            const index = workExperienceCount;
+            
+            const newEntry = document.createElement('div');
+            newEntry.className = 'experience-entry';
+            newEntry.setAttribute('data-index', index);
+            newEntry.innerHTML = `
+                <button type="button" class="remove-entry-btn" onclick="removeEntry(this)">Remove</button>
+                <h3 style="font-size: 16px; margin-bottom: 15px; color: #666;">Position ${index + 1}</h3>
+                
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="work-title-${index}" placeholder="Software Engineer">
+                </div>
+
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" name="work-company-${index}" placeholder="Tech Corp">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="month" name="work-start-${index}">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="month" name="work-end-${index}" placeholder="Leave blank if current">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="work-description-${index}" rows="3" placeholder="Describe your responsibilities and achievements..."></textarea>
+                </div>
+            `;
+            
+            container.appendChild(newEntry);
+            workExperienceCount++;
+            
+            // Scroll to the new entry
+            newEntry.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Add education
+        function addEducation() {
+            const container = document.getElementById('education-container');
+            const index = educationCount;
+            
+            const newEntry = document.createElement('div');
+            newEntry.className = 'education-entry';
+            newEntry.setAttribute('data-index', index);
+            newEntry.innerHTML = `
+                <button type="button" class="remove-entry-btn" onclick="removeEntry(this)">Remove</button>
+                <h3 style="font-size: 16px; margin-bottom: 15px; color: #666;">Education ${index + 1}</h3>
+                
+                <div class="form-group">
+                    <label>University/School</label>
+                    <input type="text" name="school-${index}" placeholder="University of Example">
+                </div>
+
+                <div class="form-group">
+                    <label>Degree</label>
+                    <input type="text" name="degree-${index}" placeholder="Bachelor of Science">
+                </div>
+
+                <div class="form-group">
+                    <label>Major/Field of Study</label>
+                    <input type="text" name="major-${index}" placeholder="Computer Science">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="month" name="edu-start-${index}">
+                    </div>
+                    <div class="form-group">
+                        <label>Graduation Date</label>
+                        <input type="month" name="edu-end-${index}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>GPA (Optional)</label>
+                    <input type="text" name="gpa-${index}" placeholder="3.8">
+                </div>
+            `;
+            
+            container.appendChild(newEntry);
+            educationCount++;
+            
+            // Scroll to the new entry
+            newEntry.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Remove entry
+        function removeEntry(button) {
+            const entry = button.parentElement;
+            entry.style.opacity = '0';
+            entry.style.transform = 'scale(0.95)';
+            entry.style.transition = 'all 0.3s';
+            
+            setTimeout(() => {
+                entry.remove();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
