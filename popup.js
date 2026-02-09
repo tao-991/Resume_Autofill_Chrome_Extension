@@ -22,20 +22,29 @@ let profiles = {};
 // Load profiles on startup
 loadProfiles();
 
+// document.getElementById('new-profile-btn').addEventListener('click', () => {
+//   currentProfileId = null;
+//   document.getElementById('profile-form-container').style.display = 'block';
+//   document.getElementById('profile-form').reset();
+//   document.getElementById('delete-profile-btn').style.display = 'none';
+  
+//   // Clear dynamic sections
+//   document.getElementById('work-experience-container').innerHTML = '';
+//   document.getElementById('education-container').innerHTML = '';
+  
+//   // Add one empty work experience and education
+//   addWorkExperience();
+//   addEducation();
+// });
+
 document.getElementById('new-profile-btn').addEventListener('click', () => {
-  currentProfileId = null;
-  document.getElementById('profile-form-container').style.display = 'block';
-  document.getElementById('profile-form').reset();
-  document.getElementById('delete-profile-btn').style.display = 'none';
-  
-  // Clear dynamic sections
-  document.getElementById('work-experience-container').innerHTML = '';
-  document.getElementById('education-container').innerHTML = '';
-  
-  // Add one empty work experience and education
-  addWorkExperience();
-  addEducation();
+    // Open the full-page profile editor in a new tab
+    // This provides a much better user experience for filling out long forms
+    chrome.tabs.create({
+        url: chrome.runtime.getURL('profile.html')
+    });
 });
+
 
 document.getElementById('profile-select').addEventListener('change', (e) => {
   const profileId = e.target.value;

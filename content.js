@@ -4,9 +4,9 @@
 const FIELD_PATTERNS = {
   firstName: /first.*name|fname|given.*name|forename/i,
   lastName: /last.*name|lname|surname|family.*name/i,
-  fullName: /^name$|full.*name|your.*name|applicant.*name|contact.*name/i,
+  fullName: /\bname\b|full.*name|your.*name|applicant.*name|contact.*name|candidate.*name|legal.*name|name|氏名|名前|姓名/i,
   email: /email|e-mail|mail/i,
-  phone: /phone|mobile|telephone|tel/i,
+  phone: /phone|mobile|telephone|tel|phone number/i,
   linkedin: /linkedin|linked-in/i,
   website: /website|portfolio|personal.*site|url/i,
   github: /github|git/i,
