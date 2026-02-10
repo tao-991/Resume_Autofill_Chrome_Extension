@@ -333,6 +333,7 @@ async function readFile(file) {
 document.getElementById('save-api-btn').addEventListener('click', async () => {
   const provider = document.getElementById('ai-provider').value;
   const apiKey = document.getElementById('api-key').value;
+  const apiBaseUrl = document.getElementById('api-url').value.trim()
   
   if (!apiKey) {
     const statusDiv = document.getElementById('api-status');
@@ -343,7 +344,8 @@ document.getElementById('save-api-btn').addEventListener('click', async () => {
   
   await chrome.storage.local.set({ 
     aiProvider: provider,
-    apiKey: apiKey 
+    apiKey: apiKey,
+    apiBaseUrl: apiBaseUrl 
   });
   
   const statusDiv = document.getElementById('api-status');
@@ -352,14 +354,19 @@ document.getElementById('save-api-btn').addEventListener('click', async () => {
 });
 
 // Load API config
-chrome.storage.local.get(['aiProvider', 'apiKey'], (result) => {
+chrome.storage.local.get(['aiProvider', 'apiKey','apiBaseUrl'], (result) => {
   if (result.aiProvider) {
     document.getElementById('ai-provider').value = result.aiProvider;
   }
   if (result.apiKey) {
     document.getElementById('api-key').value = result.apiKey;
   }
+  if (result.apiBaseUrl){
+    document.getElementById('api-url').value = result.apiBaseUrl;
+  }
 });
+
+
 
 // Autofill button
 document.getElementById('autofill-btn').addEventListener('click', async () => {
@@ -413,3 +420,157 @@ chrome.storage.local.get(['settings'], (result) => {
     document.getElementById('fill-delay').value = result.settings.fillDelay || 100;
   }
 });
+
+
+
+// popup.js - AI Assistant Logic
+
+// Event Listener: Generate Answer
+document.getElementById('generate-answer-btn').addEventListener('click', async () => {
+    const question = document.getElementById('manual-question').value.trim();
+    const statusDiv = document.getElementById('loading-status');
+    const resultContainer = document.getElementById('ai-result-container');
+    const outputText = document.getElementById('ai-answer-output');
+    
+    // 1. Basic Validation
+    if (!question) {
+        showStatus('Please enter a question first.', 'error');
+        return;
+    }
+
+    const profileId = document.getElementById('profile-select').value;
+    if (!profileId) {
+        showStatus('Please select a Profile in the "Profiles" tab first.', 'error');
+        return;
+    }
+
+    // 2. Set Loading State
+    showStatus('Thinking... (This may take a few seconds)', 'info');
+    resultContainer.style.display = 'none';
+
+    try {
+        // 3. Fetch all necessary data from storage
+        const data = await chrome.storage.local.get(['profiles', 'resumeText', 'apiKey', 'aiProvider', 'apiBaseUrl']);
+        
+        if (!data.apiKey) throw new Error("API Key is missing. Please configure it above.");
+        
+        const profile = data.profiles[profileId];
+        if (!profile) throw new Error("Selected profile data not found.");
+
+        // 4. Construct the System Prompt
+        const systemPrompt = `
+        You are a professional career coach helping a candidate apply for a job.
+        
+        User's Question: "${question}"
+        
+        Candidate's Resume Content:
+        ${data.resumeText || "No resume text provided."}
+        
+        Candidate's Profile Data:
+        Name: ${profile.fullName}
+        Email: ${profile.email}
+        Skills: ${profile.skills}
+        Experience: ${JSON.stringify(profile.workExperience || [])}
+        Education: ${JSON.stringify(profile.education || [])}
+        
+        Task: Write a concise, professional, first-person response to the question based on the candidate's background. 
+        Do not include placeholders like "[Your Name]". Write the answer directly.
+        `;
+
+        // 5. Call the API (Fetch directly from popup)
+        const answer = await fetchAIResponse(systemPrompt, data.apiKey, data.aiProvider, data.apiBaseUrl);
+
+        // 6. Display Result
+        outputText.value = answer;
+        resultContainer.style.display = 'block';
+        showStatus('Answer generated!', 'success');
+
+    } catch (error) {
+        console.error(error);
+        showStatus(`Error: ${error.message}`, 'error');
+    }
+});
+
+// Event Listener: Copy to Clipboard
+document.getElementById('copy-answer-btn').addEventListener('click', () => {
+    const outputText = document.getElementById('ai-answer-output');
+    outputText.select();
+    document.execCommand('copy'); // Standard clipboard copy command
+    
+    // Visual feedback
+    const btn = document.getElementById('copy-answer-btn');
+    const originalText = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = originalText, 2000);
+});
+
+// Event Listener: Clear
+document.getElementById('clear-answer-btn').addEventListener('click', () => {
+    document.getElementById('manual-question').value = '';
+    document.getElementById('ai-result-container').style.display = 'none';
+    showStatus('', '');
+});
+
+// Helper: Show Status Message
+function showStatus(msg, type) {
+    const el = document.getElementById('loading-status');
+    el.textContent = msg;
+    // Ensure you have CSS classes for .error (red) and .success (green) and .info (blue)
+    el.className = `status-text ${type}`; 
+}
+
+// Helper: API Request Logic
+async function fetchAIResponse(prompt, apiKey, provider, baseUrl) {
+    let url = '';
+    let headers = { 'Content-Type': 'application/json' };
+    let body = {};
+
+    // Remove trailing slash if present
+    const cleanBaseUrl = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+
+    if (provider === 'anthropic') {
+        url = cleanBaseUrl ? `${cleanBaseUrl}/v1/messages` : 'https://api.anthropic.com/v1/messages';
+        headers['x-api-key'] = apiKey;
+        headers['anthropic-version'] = '2023-06-01';
+        body = {
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 1000,
+            messages: [{ role: "user", content: prompt }]
+        };
+    } else if (provider === 'openai'){
+        // Default: OpenAI
+        url = cleanBaseUrl ? `${cleanBaseUrl}/chat/completions` : 'https://api.openai.com/v1/chat/completions';
+        headers['Authorization'] = `Bearer ${apiKey}`;
+        body = {
+            model: "gpt-4", 
+            messages: [{ role: "user", content: prompt }]
+        };
+    } else {
+      url = cleanBaseUrl ? `${cleanBaseUrl}/chat/completions` : 'https://api.chatanywhere.tech/v1';
+        headers['Authorization'] = `Bearer ${apiKey}`;
+        body = {
+            model: "gpt-4", 
+            messages: [{ role: "user", content: prompt }]
+        };
+    }
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API Error ${response.status}: ${errText}`);
+    }
+
+    const json = await response.json();
+    
+    // Parse response based on provider
+    if (provider === 'anthropic') {
+        return json.content[0].text;
+    } else {
+        return json.choices[0].message.content;
+    }
+}

@@ -25,7 +25,7 @@ const FIELD_PATTERNS = {
   // Education
   school: /school|university|college|institution/i,
   degree: /degree|education.*level/i,
-  major: /major|field.*study|specialization|majob.*|major\b.*/i,
+  major: /major|field.*study|specialization|majob.*|field.*of.*study/i,
   gpa: /gpa|grade.*point/i,
   
   // Additional
@@ -36,11 +36,6 @@ const FIELD_PATTERNS = {
   race: /race|ethnicity/i,
   disability: /disability|disabled/i,
   
-  // Open-ended questions (need AI)
-  whyCompany: /why.*company|why.*join|why.*interested|interest.*position/i,
-  whyFit: /why.*fit|why.*good|qualifications|why.*hire|why.*you/i,
-  coverLetter: /cover.*letter|letter.*interest|introduction/i,
-  additionalInfo: /additional.*info|anything.*else|other.*info/i
 };
 
 // Listen for messages from popup
@@ -55,7 +50,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function handleAutofill(profileId) {
   try {
     // Get profile data
-    const result = await chrome.storage.local.get(['profiles', 'settings', 'resumeText', 'apiKey', 'aiProvider']);
+    const result = await chrome.storage.local.get(['profiles', 'settings', 'resumeText']);
     const profile = result.profiles?.[profileId];
     
     if (!profile) {
@@ -84,7 +79,7 @@ async function handleAutofill(profileId) {
     
     // Fill fields
     for (const field of fields) {
-      const value = await getFieldValue(field, profile, result.resumeText, result.apiKey, result.aiProvider, counters);
+      const value = await getFieldValue(field, profile, result.resumeText, counters);
       
       if (value) {
         await fillField(field.element, value, settings.fillDelay);
@@ -168,7 +163,7 @@ function matchField(identifiers, patterns) {
   return null;
 }
 
-async function getFieldValue(field, profile, resumeText, apiKey, aiProvider,counters) {
+async function getFieldValue(field, profile, resumeText, counters) {
   const fieldType = matchField(field.identifiers, FIELD_PATTERNS);
   
   if (!fieldType) {
@@ -249,91 +244,11 @@ async function getFieldValue(field, profile, resumeText, apiKey, aiProvider,coun
     }
       
     
-    // AI-powered fields
-    case 'whyCompany':
-    case 'whyFit':
-    case 'coverLetter':
-    case 'additionalInfo':
-      if (resumeText && apiKey) {
-        return await getAIResponse(field, profile, resumeText, apiKey, aiProvider);
-      }
-      return '';
-    
     default:
       return null;
   }
 }
 
-async function getAIResponse(field, profile, resumeText, apiKey, aiProvider) {
-  try {
-    const label = findLabel(field.element);
-    const placeholder = field.element.placeholder || '';
-    const question = label || placeholder || 'Please provide additional information';
-    
-    const prompt = `You are helping fill out a job application. Based on the resume and profile information below, provide a concise and professional answer to the following question.
-
-Question: ${question}
-
-Resume:
-${resumeText}
-
-Profile Information:
-Name: ${profile.fullName}
-Skills: ${profile.skills}
-Work Experience: ${profile.workExperience?.map(w => `${w.title} at ${w.company}`).join(', ')}
-Education: ${profile.education?.map(e => `${e.degree} in ${e.field} from ${e.school}`).join(', ')}
-
-Provide a thoughtful, personalized answer in 2-4 sentences that highlights relevant qualifications and genuine interest. Be specific and professional.`;
-
-    let response;
-    
-    if (aiProvider === 'anthropic') {
-      response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
-        })
-      });
-      
-      const data = await response.json();
-      return data.content?.[0]?.text || '';
-      
-    } else if (aiProvider === 'openai') {
-      response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [{
-            role: 'user',
-            content: prompt
-          }],
-          max_tokens: 500
-        })
-      });
-      
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
-    }
-    
-  } catch (error) {
-    console.error('AI request error:', error);
-    return '';
-  }
-}
 
 async function fillField(element, value, delay) {
   // Wait for delay

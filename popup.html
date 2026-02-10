@@ -194,14 +194,52 @@
           <select id="ai-provider">
             <option value="anthropic">Anthropic (Claude)</option>
             <option value="openai">OpenAI (GPT)</option>
+            <option value="custom">Custom</option>
           </select>
         </div>
         <div class="form-group">
           <label>API Key</label>
           <input type="password" id="api-key" placeholder="Enter your API key">
         </div>
+        
+        <!-- Add this inside your API Configuration section in popup.html -->
+        <div class="form-group">
+          <label>API Base URL</label>
+          <input type="text" id="api-url" placeholder="https://api.openai.com/v1">
+          <small>Leave blank to use default official URLs</small>
+        </div>
         <button id="save-api-btn" class="btn btn-primary">Save API Configuration</button>
         <div id="api-status" class="status-text"></div>
+
+       <!-- popup.html -->
+
+      
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+      <div class="ai-assistant-section">
+        <h3>🤖 AI Q&A Assistant</h3>
+        <p class="info-text">Paste a question from the job application here:</p>
+        
+        <div class="form-group">
+          <textarea id="manual-question" rows="3" placeholder="e.g. Why do you want to work here?"></textarea>
+        </div>
+
+        <button id="generate-answer-btn" class="btn btn-primary" style="width: 100%">Generate Answer</button>
+
+        <!-- Show result  -->
+        <div id="ai-result-container" style="display: none; margin-top: 15px;">
+          <label>Suggested Answer:</label>
+          <textarea id="ai-answer-output"></textarea>
+          
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button id="copy-answer-btn" class="btn btn-secondary" style="flex: 1;">Copy to Clipboard</button>
+            <button id="clear-answer-btn" class="btn btn-danger" style="width: 80px;">Clear</button>
+          </div>
+        </div>
+        
+        <div id="loading-status" class="status-text"></div>
+      </div>
 
         <h3>Autofill Control</h3>
         <div class="control-section">
