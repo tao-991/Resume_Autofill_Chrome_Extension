@@ -474,7 +474,7 @@ document.getElementById('generate-answer-btn').addEventListener('click', async (
         Education: ${JSON.stringify(profile.education || [])}
         
         Task: Write a concise, professional, first-person response to the question based on the candidate's background. 
-        Do not include placeholders like "[Your Name]". Write the answer directly.
+        Do not include placeholders like "[Your Name]". Write the answer directly. Then answer should be in 100 words.
         `;
 
         // 5. Call the API (Fetch directly from popup)
