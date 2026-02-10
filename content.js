@@ -2,29 +2,30 @@
 
 // Field matching patterns
 const FIELD_PATTERNS = {
-  firstName: /first.*name|fname|given.*name|forename/i,
-  lastName: /last.*name|lname|surname|family.*name/i,
-  fullName: /\bname\b|full.*name|your.*name|applicant.*name|contact.*name|candidate.*name|legal.*name|name|氏名|名前|姓名/i,
   email: /email|e-mail|mail/i,
   phone: /phone|mobile|telephone|tel|phone number/i,
   linkedin: /linkedin|linked-in/i,
   website: /website|portfolio|personal.*site|url/i,
-  github: /github|git/i,
+  github: /github|git|\bgithub\b/i,
   street: /street|address.*line.*1|address1/i,
   address2: /address.*line.*2|address2|apt|suite/i,
   city: /city|town/i,
   state: /state|province|region/i,
   zip: /zip|postal|post.*code/i,
   country: /country|nation/i,
+  firstName: /first.*name|fname|given.*name|forename/i,
+  lastName: /last.*name|lname|surname|family.*name/i,
+  fullName: /\bname\b|full.*name|your.*name|applicant.*name|contact.*name|candidate.*name|legal.*name|氏名|名前|姓名/i,
   
   // Work related
-  currentCompany: /current.*company|employer/i,
+  currentCompany: /current.*company|employer|company|organization|勤務先|会社/i,
   currentTitle: /current.*title|current.*position|job.*title/i,
+  jobDescription: /description|.*description|responsibilities|achievements|summary|職務内容/i,
   
   // Education
   school: /school|university|college|institution/i,
   degree: /degree|education.*level/i,
-  major: /major|field.*study|specialization/i,
+  major: /major|field.*study|specialization|majob.*|major\b.*/i,
   gpa: /gpa|grade.*point/i,
   
   // Additional
@@ -66,10 +67,24 @@ async function handleAutofill(profileId) {
     
     // Find all form fields
     const fields = findFormFields();
+
+    // counter for several edu/work experience
+    const counters = {
+      currentCompany: 0,
+      currentTitle: 0,
+      jobDescription: 0,
+      workStart: 0,
+      workEnd: 0,
+      school: 0,
+      degree: 0,
+      major: 0,
+      eduStart: 0,
+      eduEnd: 0
+    };
     
     // Fill fields
     for (const field of fields) {
-      const value = await getFieldValue(field, profile, result.resumeText, result.apiKey, result.aiProvider);
+      const value = await getFieldValue(field, profile, result.resumeText, result.apiKey, result.aiProvider, counters);
       
       if (value) {
         await fillField(field.element, value, settings.fillDelay);
@@ -153,7 +168,7 @@ function matchField(identifiers, patterns) {
   return null;
 }
 
-async function getFieldValue(field, profile, resumeText, apiKey, aiProvider) {
+async function getFieldValue(field, profile, resumeText, apiKey, aiProvider,counters) {
   const fieldType = matchField(field.identifiers, FIELD_PATTERNS);
   
   if (!fieldType) {
@@ -201,20 +216,38 @@ async function getFieldValue(field, profile, resumeText, apiKey, aiProvider) {
       return getRaceText(profile.race);
     
     // Work experience
-    case 'currentCompany':
-      return profile.workExperience?.[0]?.company || '';
-    case 'currentTitle':
-      return profile.workExperience?.[0]?.title || '';
+    case 'currentCompany':{
+      const index = counters.currentCompany++;
+      return profile.workExperience?.[index]?.company || '';
+    }
+    case 'currentTitle':{
+      const index = counters.currentTitle++;
+      return profile.workExperience?.[index]?.title || '';
+    }
+    case 'jobDescription':{
+      const index = counters.jobDescription++;
+      return profile.workExperience?.[index]?.description || '';
+    }
+      
     
     // Education
-    case 'school':
-      return profile.education?.[0]?.school || '';
-    case 'degree':
-      return profile.education?.[0]?.degree || '';
-    case 'major':
-      return profile.education?.[0]?.field || '';
-    case 'gpa':
-      return profile.education?.[0]?.gpa || '';
+    case 'school':{
+      const index = counters.school++;
+      return profile.education?.[index]?.school || '';
+    }
+    case 'degree':{
+      const index = counters.degree++;
+      return profile.education?.[index]?.degree || '';
+    }
+    case 'major':{
+      const index = counters.major++;
+      return profile.education?.[index]?.field || '';
+    }
+    case 'gpa':{
+      const index = counters.gpa++;
+      return profile.education?.[index]?.gpa || '';
+    }
+      
     
     // AI-powered fields
     case 'whyCompany':
